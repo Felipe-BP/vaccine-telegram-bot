@@ -1,0 +1,40 @@
+service: vaccine-telegram-bot
+
+frameworkVersion: '2'
+
+package:
+  exclude:
+    - node_modules/puppeteer/.local-chromium/**
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+
+functions:
+  bot:
+    handler: functions/handler.handle
+    name: "${self:service}-${self:provider.stage}"
+    description: "Telegram Vaccine Bot handler"
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: bot
+          method: post
+          cors: true
+
+  setwebhook:
+    handler: functions/handler.setWebhook
+    name: "${self:service}-${self:provider.stage}"
+    description: "Setup Telegram Webhook"
+    events:
+      - http:
+          path: webhook
+          method: get
+          cors: true
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+  - serverless-dotenv-plugin
